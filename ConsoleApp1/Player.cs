@@ -20,6 +20,8 @@ namespace ConsoleApp1
             while (true)
             {
                 Console.Clear();
+                CurrentRoom.ShowInfo(); // Viser information om det nuværende rum
+
                 Console.WriteLine("╔════════════════════════════╗");
                 Console.WriteLine("║ Du hører fodtrin bag dig!  ║");
                 Console.WriteLine("╠════════════════════════════╣");
@@ -89,8 +91,13 @@ namespace ConsoleApp1
                 else
                 {
                     CurrentRoom = nextRoom;
-                    break;
                 }
+
+                // Her vises info om det nye rum, efter spilleren har bevæget sig.
+                Console.Clear();
+                CurrentRoom.ShowInfo();
+                Console.WriteLine("\nTryk på en tast for at fortsætte...");
+                Console.ReadKey();
             }
         }
     }
