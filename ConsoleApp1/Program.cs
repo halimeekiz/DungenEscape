@@ -11,7 +11,7 @@ internal class Program
     private static void Main(string[] args)
     {
         Console.Clear();
-        
+
         Console.WriteLine("╔════════════════════════════════╗");
         Console.WriteLine("║ Velkommen til eventyrspillet!  ║");
         Console.WriteLine("╠════════════════════════════════╣");
@@ -23,13 +23,23 @@ internal class Program
         Console.WriteLine("║ Tryk på en tast for at starte. ║");
         Console.WriteLine("╚════════════════════════════════╝");
 
-        Console.ReadKey();
+        // Vent på brugerinput før spillet starter
+        while (true)
+        {
+            var key = Console.ReadKey(true);                 // Vent på tastetryk, men skjul tasten
+            if (key.Key != ConsoleKey.Escape)                // Hvis tasten ikke er Escape, start spillet
+            {
+                break;
+            }
+            Console.WriteLine("\nTryk på en tast for at starte.");
+            Console.Clear();
+        }
 
-        Game.rooms = Room.CreateAllRooms();                // Opret alle rum
-        Player.CurrentRoom = Game.rooms["Rum1"];           // Start i Rum1
-        Item.PopulateItems(Game.rooms);                    // Læg alle ting og våben i rummene
-
-        Player.Move(); // Starter spillerens bevægelse
+        // Initialisering af spillet
+        Game.rooms = Room.CreateAllRooms();                     // Opret alle rum
+        Player.CurrentRoom = Game.rooms["Baghaven"];            // Starter i Baghaven
+        Item.PopulateItems(Game.rooms);                         // Læg alle ting og våben i rummene
+        Player.Move();                                          // Starter spillerens bevægelse
 
         Console.ReadKey();
     }

@@ -71,61 +71,64 @@ namespace ConsoleApp1
         {
             var rooms = new Dictionary<string, Room>();
 
-            Room rum1 = new Room("Rum1", "Du står i baghaven. En dør i huset står åben mod øst.");
-            Room rum2 = new Room("Rum2", "Et mørkt og fugtigt kælderrum.");
-            Room rum3 = new Room("Rum3", "Du står i entreen. En dør fører længere ind i huset.");
-            Room rum4 = new Room("Rum4", "Et lille køkken med en lugt af brændt toast.");
-            Room rum5 = new Room("Rum5", "Entré med en trappe op til første sal");
-            Room rum6 = new Room("Rum6", "Førstesal – en gang med adgang til flere værelser");
-            Room rum7 = new Room("Rum7", "Du er i soveværelset");
-            Room rum8 = new Room("Rum8", "Et mørkt rum hvor noget bevæger sig i skyggerne.");
-            Room rum9 = new Room("Rum9", "Et rodet børneværelse med en åben dør mod øst.");
-            Room rum10 = new Room("Rum10", "Et støvet loft med en enkelt glødepære i loftet.");
+            // Opretter rummene med beskrivende navne
+            Room bagHaven = new Room("Baghaven", "Du står i baghaven. En dør i huset står åben mod øst.");                 // Baghaven
+            Room kaelder = new Room("Kælder", "Et mørkt og fugtigt kælderrum.");                                           // Kælder
+            Room entre = new Room("Entré", "Du står i entreen. En dør fører længere ind i huset.");                        // Entré
+            Room koekken = new Room("Køkken", "Et lille køkken med en lugt af brændt toast.");                             // Køkken
+            Room entreMedTrappe = new Room("Entré udgangen", "Med trappe til første sal");                                 // Entré med trappe
+            Room foersteSal = new Room("Førstesal", "Førstesal – en gang med adgang til flere værelser");                  // Førstesal
+            Room sovevaerelse = new Room("Soveværelset", "Du er i soveværelset");                                          // Soveværelse    
+            Room moerktRum = new Room("Værelse", "Et mørkt rum hvor noget bevæger sig i skyggerne.");                      // Mørkt rum
+            Room boernevaerelse = new Room("Børneværelset", "Et rodet børneværelse med en åben dør mod øst.");             // Børneværelse
+            Room loft = new Room("Loftet", "Et støvet loft med en enkelt glødepære i loftet.");                            // Loft
 
-            // Tilføj til ordbog
-            rooms.Add(rum1.Id, rum1);
-            rooms.Add(rum2.Id, rum2);
-            rooms.Add(rum3.Id, rum3);
-            rooms.Add(rum4.Id, rum4);
-            rooms.Add(rum5.Id, rum5);
-            rooms.Add(rum6.Id, rum6);
-            rooms.Add(rum7.Id, rum7);
-            rooms.Add(rum8.Id, rum8);
-            rooms.Add(rum9.Id, rum9);
-            rooms.Add(rum10.Id, rum10);
+            // Tilføj rummene til ordbogen
+            rooms.Add(bagHaven.Id, bagHaven);
+            rooms.Add(kaelder.Id, kaelder);
+            rooms.Add(entre.Id, entre);
+            rooms.Add(koekken.Id, koekken);
+            rooms.Add(entreMedTrappe.Id, entreMedTrappe);
+            rooms.Add(foersteSal.Id, foersteSal);
+            rooms.Add(sovevaerelse.Id, sovevaerelse);
+            rooms.Add(moerktRum.Id, moerktRum);
+            rooms.Add(boernevaerelse.Id, boernevaerelse);
+            rooms.Add(loft.Id, loft);
 
-            // Forbind retninger
-            rum1.East = "Rum3";
-            rum3.West = "Rum1";
+            // Forbind retninger mellem rummene ved at bruge de beskrivende navne
+            bagHaven.East = "Entré";
+            entre.West = "Baghaven";
 
-            rum3.East = "Rum4";
-            rum4.West = "Rum3";
+            entre.East = "Køkken";
+            koekken.West = "Entré";
 
-            rum3.North = "Rum5";
-            rum5.South = "Rum3";
+            entre.North = "Entré udgangen";
+            entreMedTrappe.South = "Entré";
 
-            rum5.North = "Rum6";
-            rum6.South = "Rum5";
+            entreMedTrappe.North = "Førstesal";
+            foersteSal.South = "Entré udgangen";
 
-            rum6.East = "Rum9";
-            rum9.West = "Rum6";
+            foersteSal.East = "Børneværelset";
+            boernevaerelse.West = "Førstesal";
 
-            rum6.West = "Rum7";
-            rum7.East = "Rum6";
+            foersteSal.West = "Soveværelset";
+            sovevaerelse.East = "Førstesal";
 
-            rum6.North = "Rum10";
-            rum10.South = "Rum6";
+            foersteSal.North = "Loftet";
+            loft.South = "Førstesal";
 
-            rum10.North = "Rum8";
-            rum8.South = "Rum10";
+            loft.North = "Værelse";
+            moerktRum.South = "Loftet";
+
+            // lås hoveddøren og kræv nøgle
+            entre.IsLocked = true;
+            entre.RequiredKey = "Hus - nøgle";
 
             // Lås loftet og kræv nøgle
-            rum10.IsLocked = true;
-            rum10.RequiredKey = "Loft-nøgle";
+            loft.IsLocked = true;
+            loft.RequiredKey = "Loft-nøgle";
 
             return rooms;
         }
-
-
     }
 }
