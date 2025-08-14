@@ -2,107 +2,94 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleApp1
 {
-    public static class Player                                                    // Static = hører til klassen, ikke til et objekt
-                                                                                  // - Hvis det kun en player static, hvis flere player så kan det ikke være static
+    // Player-klassen indeholder spillerens tilstand (hvilket rum, inventar)
+    // samt hovedloopen der håndterer input, bevægelse og simple kommandoer.
+    public static class Player
     {
-        public static int Health = 100;                                           // Player starter med 100% energi liv
-        public static int life = 3;                                               // Player har 3 liv
-        public static Room CurrentRoom;
-        public static List<Item> Inventory = new List<Item>();                    // vi laver en liste da opgaven kræver vi samler flere ting og ikke en enkelt ting op. 
+        // Peger på det rum spilleren står i lige nu.
+        public static Room CurrentRoom = null!;
 
+        // Simpelt inventar. Ting (Item) tilføjes/fjernes via Actions.TakeItem/UseItem.
+        public static List<Item> Inventory = new();
 
-        public static void Move()                                                 // Void returnerer ikke nogen værdi!
+        // Hovedloop for spillet: vis rum, læs input, håndter kommandoer/bevægelse.
+        public static void Move()
         {
-
             while (true)
             {
+                // 1) Ryd skærm og vis info for det rum jeg står i.
                 Console.Clear();
-                CurrentRoom.ShowInfo(); // Viser information om det nuværende rum
+                CurrentRoom.ShowInfo();
 
-                Console.WriteLine(" ");
-                Console.WriteLine(" ");
-                // Viser kun de gyldige retninger baseret på hvilket rum spilleren er i
-                // Visning af gyldige retninger dynamisk
-                Console.WriteLine("╔══════════════════════════════╗");
-                Console.WriteLine("║ Du hører fodtrin bag dig!    ║");
-                Console.WriteLine("╠══════════════════════════════╣");
+                // 2) Tegn kommandomenu og minikort side om side (menu venstre, kort højre).
+                int menuTop = Console.CursorTop;
+                int usedLines = Actions.ShowCommandMenu(CurrentRoom); // venstre kolonne
 
-                // Check hvilke retninger der er gyldige
-                if (!string.IsNullOrEmpty(CurrentRoom.North))
-                    Console.WriteLine("║  go north                    ║");
+                Console.SetCursorPosition(0, menuTop);
+                Maps.DrawMiniMap(Game.rooms, CurrentRoom, leftPadding: 45); // højre kolonne
 
-                if (!string.IsNullOrEmpty(CurrentRoom.South))
-                    Console.WriteLine("║  go south                    ║");
-
-                if (!string.IsNullOrEmpty(CurrentRoom.East))
-                    Console.WriteLine("║  go east                     ║");
-
-                if (!string.IsNullOrEmpty(CurrentRoom.West))
-                    Console.WriteLine("║  go west                     ║");
-
-                Console.WriteLine("║                              ║");
-                Console.WriteLine("║ Brug nedenstående kommando:  ║");
-                Console.WriteLine("║ Take                         ║");
-                Console.WriteLine("║ Inventory (Viser inventory   ║");
-                Console.WriteLine("║ Use Item                     ║");
-                Console.WriteLine("║ Attack enemy                 ║");
-                Console.WriteLine("║                              ║");
-                Console.WriteLine("║ Skriv en retning ovenfor     ║");
-                Console.WriteLine("║ eller en kommando.           ║");
-                Console.WriteLine("║     Tryk Enter.              ║");
-                Console.WriteLine("╚══════════════════════════════╝");
+                // 3) Placér cursor under menuen og bed om input.
+                Console.SetCursorPosition(0, menuTop + usedLines);
                 Console.Write(">");
 
-                // Read user input for direction eller kommando
-                string input = Console.ReadLine().ToLower().Trim();
+                // 4) Læs brugerens input (kommando eller retning).
+                string input = (Console.ReadLine() ?? "").ToLower().Trim();
 
-                // Inventory
+                // --- Kommandoer -----------------------------------------------------
+
+                // inventory -> vis hvad jeg har i tasken
                 if (input == "inventory")
                 {
                     Actions.ShowInventory();
-                    Console.WriteLine("\nTryk på en tast for at fortsætte...");
-                    Console.ReadKey();
+                    Actions.Pause();
                     continue;
                 }
 
-                // Use [item]
+                // use [navn] -> brug en ting fra inventaret (f.eks. nøgle)
                 if (input.StartsWith("use "))
                 {
                     string itemName = input.Substring(4).Trim();
                     Actions.UseItem(itemName);
-                    Console.WriteLine("\nTryk på en tast for at fortsætte...");
-                    Console.ReadKey();
+                    Actions.Pause();
                     continue;
                 }
 
-                // Attack [våben]
-                if (input.StartsWith("attack "))
-                {
-                    string weaponName = input.Substring(7).Trim();
-                    Actions.AttackWithWeapon(weaponName);
-                    Console.WriteLine("\nTryk på en tast for at fortsætte...");
-                    Console.ReadKey();
-                    continue;
-                }
-
-                // Take
+                // take [navn] -> saml en ting op fra rummet
                 if (input.StartsWith("take "))
                 {
                     string itemName = input.Substring(5).Trim();
                     Actions.TakeItem(itemName);
-                    Console.WriteLine("\nTryk på en tast for at fortsætte...");
-                    Console.ReadKey();
+                    Actions.Pause();
                     continue;
                 }
 
+                // restart -> nulstil spillet (rum, items, startposition)
+                if (input == "restart")
+                {
+                    Inventory.Clear();
+                    Game.rooms = Room.CreateAllRooms();
+                    Item.PopulateItems(Game.rooms);
+                    CurrentRoom = Game.rooms["Baghaven"];
 
-                // Hvis ikke en af ovenstående – fortsæt med at tjekke retning
-                string nextRoomId = null;
+                    Console.WriteLine("Spillet er genstartet!");
+                    Actions.Pause();
+                    continue;
+                }
+
+                // quit/exit -> afslut programmet
+                if (input == "quit" || input == "exit")
+                {
+                    Console.WriteLine("Farvel! 👋");
+                    Environment.Exit(0); // Afslutter hele programmet
+                }
+
+                // --- Retningsinput (bevægelser) -------------------------------------
+
+                // Oversæt tekstinput til id’et på det næste rum (hvis der er en udgang).
+                string? nextRoomId = null;
 
                 switch (input)
                 {
@@ -120,50 +107,59 @@ namespace ConsoleApp1
                         break;
                     default:
                         Console.WriteLine("Ugyldigt. Prøv igen.");
-                        Console.ReadKey();
+                        Actions.Pause();
                         continue;
                 }
 
-
+                // Ingen udgang i den retning
                 if (nextRoomId == null)
                 {
                     Console.WriteLine("Du kan ikke gå den vej. Tryk en tast for at prøve igen...");
-                    Console.ReadKey();
+                    Actions.Pause();
                     continue;
                 }
 
+                // Slå det næste rum op i spillets room-liste.
                 Room nextRoom = Game.rooms[nextRoomId];
 
+                // Hvis døren er låst, tjek om jeg har den rigtige nøgle i inventaret.
                 if (nextRoom.IsLocked)
                 {
-                    // Tjek om spilleren har den nødvendige nøgle
-                    bool hasKey = Inventory.Any(item => item.Name.ToLower() == nextRoom.RequiredKey?.ToLower());
+                    // Robust sammenligning af nøgle-navne (Normalize fjerner mellemrum/case/æøå-varianter).
+                    bool hasKey = Inventory.Any(item => Actions.Normalize(item.Name) == Actions.Normalize(nextRoom.RequiredKey ?? ""));
 
                     if (hasKey)
                     {
                         Console.WriteLine($"Du bruger {nextRoom.RequiredKey} og låser døren op.");
-                        nextRoom.IsLocked = false; // Lås op
-                        CurrentRoom = nextRoom;
-                        break;
+                        nextRoom.IsLocked = false; // lås op
+                        CurrentRoom = nextRoom;    // gå ind
+                        // Intet break; vi lader flowet fortsætte så rummet vises nedenfor.
                     }
                     else
                     {
                         Console.WriteLine("Døren er låst! Du mangler den rigtige nøgle.");
                         Console.WriteLine("Tryk en tast for at prøve en anden retning...");
-                        Console.ReadKey();
+                        Actions.Pause();
                         continue;
                     }
                 }
                 else
                 {
+                    // Døren er ikke låst — gå ind i rummet.
                     CurrentRoom = nextRoom;
                 }
 
-                // Her vises info om det nye rum, efter spilleren har bevæget sig.
+                // 5) Når jeg er kommet ind, viser jeg rummet igen
+                //    og håndterer 2D-array-hændelser (fælder, nøgle, udgang) via Labyrinth.
                 Console.Clear();
                 CurrentRoom.ShowInfo();
-                Console.WriteLine("\nTryk på en tast for at fortsætte...");
-                Console.ReadKey();
+
+                // (Her kaldes hændelser fra mit char[,] Grid – fx fælder/udgang – for det nye rum)
+                // ntrig 2D-array-hændelser (fælder) først når vi ER i rummet
+                Labyrinth.OnEnterRoom(Player.CurrentRoom.Id);
+
+                // 6) Lille pause så teksten kan nå at blive læst.
+                Actions.Pause();
             }
         }
     }

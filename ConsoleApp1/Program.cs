@@ -1,4 +1,5 @@
 ﻿using ConsoleApp1;
+using System.Text;
 
 /* 
 Spilbeskrivelse:
@@ -10,38 +11,39 @@ internal class Program
 {
     private static void Main(string[] args)
     {
+        // Sørger for at konsollen kan vise/skrive danske tegn (æøå) og emojis
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
+
+        // Ryd skærmen og tegn en lille velkomstskærm
         Console.Clear();
 
-        Console.WriteLine("╔════════════════════════════════╗");
-        Console.WriteLine("║ Velkommen til eventyrspillet!  ║");
-        Console.WriteLine("╠════════════════════════════════╣");
-        Console.WriteLine("║ Du skal udforske et hus og     ║");
-        Console.WriteLine("║ dets omgivelser.               ║");
-        Console.WriteLine("║ Brug kommandoer til at bevæge  ║");
-        Console.WriteLine("║ dig og interagere med ting.    ║");
-        Console.WriteLine("║                                ║");
-        Console.WriteLine("║ Tryk på en tast for at starte. ║");
-        Console.WriteLine("╚════════════════════════════════╝");
+        Console.WriteLine("╔══════════════════════════════════╗");
+        Console.WriteLine("║            Velkommen             ║");
+        Console.WriteLine("║              til                 ║");
+        Console.WriteLine("║        Dungeon Escape            ║");
+        Console.WriteLine("╠══════════════════════════════════╣");
+        Console.WriteLine("║ Du skal udforske et hus og       ║");
+        Console.WriteLine("║ dets omgivelser.                 ║");
+        Console.WriteLine("║                                  ║");
+        Console.WriteLine("║ Brug kommandoer til at bevæge    ║");
+        Console.WriteLine("║ dig og interagere med ting.      ║");
+        Console.WriteLine("║                                  ║");
+        Console.WriteLine("║ Tryk på en tast for at starte.   ║");
+        Console.WriteLine("╚══════════════════════════════════╝");
 
-        // Vent på brugerinput før spillet starter
-        while (true)
-        {
-            var key = Console.ReadKey(true);                 // Vent på tastetryk, men skjul tasten
-            if (key.Key != ConsoleKey.Escape)                // Hvis tasten ikke er Escape, start spillet
-            {
-                break;
-            }
-            Console.WriteLine("\nTryk på en tast for at starte.");
-            Console.Clear();
-        }
+        // Vent på at spilleren trykker en tast før vi går i gang
+        var key = Console.ReadKey(true);
+        if (key.Key == ConsoleKey.Escape)                       // Hvis spilleren trykker Escape her, afslut straks
+            return;                                             // Lukker programmet uden at starte spillet
 
-        // Initialisering af spillet
-        Game.rooms = Room.CreateAllRooms();                     // Opret alle rum
-        Player.CurrentRoom = Game.rooms["Baghaven"];            // Starter i Baghaven
-        Item.PopulateItems(Game.rooms);                         // Læg alle ting og våben i rummene
-        Player.Move();                                          // Starter spillerens bevægelse
+        // === Initialisering af spillet ===
 
-        Console.ReadKey();
+        Game.rooms = Room.CreateAllRooms();                     // Opretter alle rum og deres forbindelser (dictionary)
+        Player.CurrentRoom = Game.rooms["Baghaven"];            // Sætter startpositionen til Baghaven
+        Item.PopulateItems(Game.rooms);                         // Lægger start-items (nøgler m.m.) ud i rummene
+
+        // Start hovedloopen (input/bevægelse/hændelser styres i Player.Move)
+        Player.Move();                                          // Kører indtil programmet afsluttes indefra
     }
 }
-

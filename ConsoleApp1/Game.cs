@@ -1,34 +1,26 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Intrinsics.Arm;
-using System.Runtime.Intrinsics.X86;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ConsoleApp1
 {
-    // Klassen Game fungerer som en slags "kontrolcentral" for spillets verden.
-    // Den holder styr på alle rummene i spillet og gør dem tilgængelige for andre klasser.
+    // Game fungerer som en lille "central" for spillets verden.
+    // Her ligger den fælles liste (dictionary) over alle rum i spillet.
     public class Game
     {
-        /* En offentlig statisk dictionary, som gemmer alle rum i spillet.
-           Key (nøglen) er en streng (fx "Rum1"), og value (værdien) er et Room-objekt.
-           Statisk betyder, at denne ordbog er fælles og tilgængelig overalt i programmet, uden at man skal oprette et Game-objekt.*/
+        /* rooms er min fælles (static) ordbog med alle spillets rum.
+           Key  = rummets id/navn (string), fx "Baghaven" eller "Loftet".
+           Value = selve Room-objektet for det id.
+           
+           Static betyder, at jeg kan tilgå den overalt i projektet som Game.rooms
+           uden at skulle oprette en Game-instans. */
         public static Dictionary<string, Room> rooms = new Dictionary<string, Room>();
-
-        // En offentlig statisk property til at holde styr på spillerens nuværende rum
-        public static Room CurrentRoom { get; set; }
     }
 
     /*
-      - Klassen Game er som en spilkontrol, der gemmer en liste over alle rum.
-
-      - Rooms er en opslagsbog (dictionary), hvor man kan finde et bestemt rum ud fra dets navn/id – fx "Rum1".
-
-      - Static gør, at du kan skrive Game.rooms alle steder i koden uden at lave en ny instans af Game.
-
-      - Det bruges bl.a.i Player.cs og Program.cs, når der skal findes et rum, eller når spilleren flytter sig. */
+      Kort fortalt:
+      - Game er stedet, hvor jeg gemmer alle rum ét sted.
+      - rooms gør, at jeg hurtigt kan slå et rum op på id (string) -> Room.
+      - Fordi rooms er static, kan Player, Maps og andre klasser skrive Game.rooms[...] direkte.
+      - Jeg opretter/udfylder dictionary'en i Program.cs (start) og bruger den,
+        når spilleren flytter sig mellem rum.
+    */
 }
-
